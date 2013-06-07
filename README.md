@@ -33,16 +33,20 @@ management.
 Requirements
 ------------
 
-At this time the instructions will be written for a clean CentOS 6 install.
-Requirements will be fulfilled by following the instructions.
+CentOS 6 clean install is recommended.
 
 NOTE: Other Linux distributions will work but modification to the instructions
 will be required.
+
+Install
+-------
+
+Read installation instructions in `docs/INSTALL.md`
 
 License
 -------
 
 GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 
-Available at docs/LICENSE or http://www.gnu.org/licenses/agpl.html
+Available at `docs/LICENSE` or http://www.gnu.org/licenses/agpl.html
 
