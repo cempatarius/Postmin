@@ -8,7 +8,7 @@ distributions of Linux will work but instructions may need to be modified.
 How to use instructions
 -----------------------
 
-For easier readability go to: (http://www.8bitnet.com/postmin/docs/install/)
+For easier readability go [here](http://www.8bitnet.com/postmin/docs/install/)
 
 If a command starts with a `#` it means to run on the command line as root.
 If it starts with a `$` it means to run on the command line as normal user.
@@ -154,7 +154,7 @@ Revert php back to how it used to handle CGI paths.
 It is also a good idea to set a default timezone in PHP, this prevents some
 warnings/info messages. Replace `timeZone` with a valid timezone, a list can be
 found [here](http://php.net/manual/en/timezones.php). Do not forget to escape
-ane forward slashes.
+any forward slashes.
 
     # sed -i 's/;date.timezone.*$/date.timezone = "timeZone"/' /etc/php.ini
 
@@ -265,5 +265,115 @@ Enable spamassassin startup and start the daemon.
 
 spamass-milter
 --------------
+
+This package allows milter-manager to communicate with spamassassin.
+
+    # echo 'SOCKET="inet:11120@[127.0.0.1]"' >> /etc/sysconfig/spamass-milter
+
+Extra options need modified.
+
+    # echo 'EXTRA_FLAGS="-m -r 15 -u spamd"' >> /etc/sysconfig/spamass-milter
+
+Enable spamass-milter on startup and start daemon.
+
+    # /sbin/chkconfig spamass-milter on
+    # /sbin/service spamass-milter start
+
+
+clamav-milter
+-------------
+
+Need to change the socket permissions so that group can use it.
+
+    # sed -i 's/#MilterSocketMode 660/MilterSocketMode 660/' /etc/clamav-milter.conf
+
+Start clamav.
+
+    # /sbin/service clamd start
+
+Update the virus definitions.
+
+    # /usr/bin/freshclam
+
+Start clamav-milter.
+
+    # /sbin/service clamav-milter start
+
+
+milter-greylist
+---------------
+
+Enable greylist and add "safe" defaults.
+
+    # sed -i 's/racl whitelist default/#racl whitelist default\nsubnetmatch \/24\ngreylist 10m\nautowhite 1w\nracl greylist default/' /etc/mail/greylist.conf
+
+Change socket to `660` mode.
+
+    # sed -i 's/socket "\/var\/milter-greylist\/milter-greylist.sock"$/socket "\/var\/milter-greylist\/milter-greylist.sock" 660/' /etc/mail/greylist.conf
+
+Check to see if the `smmsp` group was created. If not create it.
+
+    # groupadd smmsp
+    # useradd -g smmsp -d /var/spool/mqueue -s /sbin/nologin smmsp
+
+Change ownership of the `smmsp` users home directory.
+
+    # chown smmsp:smmsp /var/milter-greylist
+
+Enable milter-greylist on startup and start the daemon.
+
+    # /sbin/chkconfig milter-greylist on
+    # /sbin/service milter-greylist start
+
+
+opendkim
+--------
+
+
+milter-manager
+--------------
+
+Add groups to the milter-manager user.
+
+    # usermod -G clam -a milter-manager
+    # usermod -G smmsp -a milter-manager
+
+Show the configuration to verify it auto detects all the mitlers
+
+    # /usr/sbin/milter-manager -u milter-manager --show-config
+
+The output should look something like the following.
+
+    ...
+    define_milter("milter-greylist") do |milter|
+      milter.connection_spec = "inet:11122@[127.0.0.1]"
+      ...
+      milter.enabled = true
+      ...
+    end
+    ...
+    define_milter("clamav-milter") do |milter|
+      milter.connection_spec = "unix:/var/clamav/clmilter.socket"
+      ...
+      milter.enabled = true
+      ...
+     end
+    ...
+    define_milter("spamass-milter") do |milter|
+      milter.connection_spec = "inet:11120@[127.0.0.1]"
+      ...
+      milter.enabled = true
+      ...
+    end
+    ...
+
+Once that is verified restart `milter-manager`.
+
+    # /sbin/service milter-manager restart
+
+Testing `milter-manager` to verify that it is working.
+
+    # sudo -u milter-manager milter-test-server -s unix:/var/run/milter-manager/milter-manager.sock
+
 
 
