@@ -8,11 +8,10 @@ distributions of Linux will work but instructions may need to be modified.
 How to use instructions
 -----------------------
 
-For easier readability go to: http://www.8bitnet.com/postmin/docs/install/
+For easier readability go to: (http://www.8bitnet.com/postmin/docs/install/)
 
 If a command starts with a `#` it means to run on the command line as root.
-If a command starts with a `$` it means to run on the command line as normal
-user.
+If it starts with a `$` it means to run on the command line as normal user.
 
 Any line that starts with 4 spaces is a command or results of a command. All
 text to be added to a file is also indented with 4 spaces.
@@ -51,12 +50,14 @@ of three more repos are required.
 
 Choose system architecture and run the following commands.
 
-i686
+### i686 ###
+
     # rpm -Uhv http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.i686.rpm
     # rpm -Uhv http://dl.fedoraproject.org/pub/epel/6/i686/epel-release-6-8.noarch.rpm
     # rpm -Uvh http://downloads.sourceforge.net/milter-manager/centos/milter-manager-release-1.1.0-0.noarch.rpm
 
-x86_64
+### x86_64 ###
+
     # rpm -Uhv http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
     # rpm -Uhv http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
     # rpm -Uvh http://downloads.sourceforge.net/milter-manager/centos/milter-manager-release-1.1.0-0.noarch.rpm
@@ -68,8 +69,8 @@ Packages
 Install the following packages, these should pull in all other dependencies.
 
     # yum install postfix spamass-milter clamav-milter milter-greylist milter-manager opendkim \
-    mysql mysql-server pyzor dovecot-mysql nginx php-fpm php-cli php-gd php-mysql php-pdo \
-    php rrdtool-ruby
+    > mysql mysql-server pyzor dovecot-mysql nginx php-fpm php-cli php-gd php-mysql php-pdo \
+    > php rrdtool-ruby
 
 
 SELinux
@@ -132,4 +133,137 @@ webmail.
             deny all;
         }
     }
+
+Increase the number of worker processes started by nginx, this is important if
+the server will have a large amount of users.
+
+    # sed -i 's/worker_process.*$/worker_processes 5;/' /etc/nginx/nginx.conf
+
+Then enable nginx on startup and start the daemon.
+
+    # /sbin/chkconfig nginx on
+    # /sbin/service nginx start
+
+php
+---
+
+Revert php back to how it used to handle CGI paths.
+
+    # sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php.ini
+
+It is also a good idea to set a default timezone in PHP, this prevents some
+warnings/info messages. Replace `timeZone` with a valid timezone, a list can be
+found [here](http://php.net/manual/en/timezones.php). Do not forget to escape
+ane forward slashes.
+
+    # sed -i 's/;date.timezone.*$/date.timezone = "timeZone"/' /etc/php.ini
+
+Set the max size for POSTS and files. 10M is a good size, anything larger and
+it should be transfered with a different technology.
+
+    # sed -i 's/post_max_size = 8M/post_max_size = 15M/' /etc/php.ini
+    # sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 10M/' /etc/php.ini
+
+php-fpm
+-------
+
+This package defaults to running under the `apache` user, this will need changed
+as apache is not being used.
+
+    # sed -i 's/user = apache/user = nginx/' /etc/php-fpm.d/www.conf
+    # sed -i 's/group = apache/group = nginx/' /etc/php-fpm.d/www.conf
+
+Enable php-fpm on startup and start the daemon.
+
+    # /sbin/chkconfig php-fpm on
+    # /sbin/service php-fpm start
+
+mysql
+-----
+
+Enable mysql on startup and start the daemon.
+
+    # /sbin/chkconfig mysqld on
+    # /sbin/service mysqld start
+
+Run the secure installation script that comes with mysqld.
+
+    # /usr/bin/mysql_secure_installation
+
+Create the database.
+
+    # mysql -u root -p
+    mysql> CREATE DATABASE IF NOT EXISTS
+        -> postmin DEFAULT CHARACTER SET = 'utf8'
+        -> DEFAULT COLLATE = 'utf8_bin';
+    mysql> \q
+
+Use `src/postmin.sql` to import table and default data.
+
+    # mysql -u root -p postmin < postmin.sql
+
+Create the required mysql users and set the permissions. Edit the file
+`src/users.sql` and replace `chAnGEme` with the correct passwords.
+
+    # mysql -u root -p < users.sql
+
+
+pyzor
+-----
+
+Run pyzor and set the output "homedir", also change the permissions.
+
+    # pyzor --homedir /etc/mail/spamassassin discover
+    # chmod og+r /etc/mail/spamassassins/servers
+
+
+spamassassin
+------------
+
+Overwrite `/etc/mail/spamassassin/local.cf` by running the following.
+
+    # cat << EOF > /etc/mail/spamassassin/local.cf
+    > user_scores_dsn DBI:mysql:postmin:localhost
+    > user_scores_sql_username spamd
+    > user_scores_sql_password chAnGEme
+    > user_scores_sql_custom_query SELECT preference, value FROM _TABLE_ WHERE username = _USERNAME_ OR username = '\$GLOBAL' or username = CONCAT('%',_DOMAIN_) ORDER BY username ASC
+    > auto_whitelist_factory Mail::SpamAssassin::SQLBasedAddrList
+    > user_awl_dsn DBI:mysql:postmin:localhost
+    > user_awl_sql_username spamd
+    > user_awl_sql_password chAnGEme
+    > user_awl_sql_table awl
+    > bayes_store_module Mail::SpamAssassin::BayesStore::MySQL
+    > bayes_sql_dsn DBI:mysql:postmin:localhost
+    > bayes_sql_username spamd
+    > bayes_sql_password chAnGEme
+    > pyzor_options --homedir /etc/mail/spamassassin
+    > pyzor_timeout 10
+    > EOF
+
+Spamassassin has startup options that need to be changed.
+
+    # sed -i 's/SPAMD.*$/SPAMDOPTIONS="-d -m 5 -x -q -u spamd -g spamd"/' /etc/sysconfig/spamassassin
+
+The AWL plguin is disabled by default lets enable it.
+
+    # sed -i 's/#loadplugin .*::AWL/loadplugin Mail::SpamAssassin::Plugin::AWL/' /etc/mail/spamassassin/v310.pre
+
+By default the spamd user and group are not created.
+
+    # groupadd spamd
+    # useradd -g spamd -d /var/lib/spamassassin -s /sbin/nologin spamd
+
+Change the ownership of the spamd users home directory.
+
+    # chown spamd /var/lib/spamassassin
+
+Enable spamassassin startup and start the daemon.
+
+    # /sbin/chkconfig spamassassin on
+    # /sbin/service spamassassin start
+
+
+spamass-milter
+--------------
+
 
