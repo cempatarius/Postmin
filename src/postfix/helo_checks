@@ -1,0 +1,9 @@
+# Change to servers default domain.
+/^hostname\.yourDomain\.com$/       550 Don't use my hostname
+
+# Change to servers IP address.
+/^123\.123\.123\.12$/           550 Don't use my IP address
+/^\[123\.123\.123\.12\]$/       550 Don't use my IP address
+
+# Do not edit the next line.
+/^[0-9.]+$/                     550 Your client is not RFC 2821 compliant

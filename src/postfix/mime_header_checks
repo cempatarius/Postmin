@@ -1,0 +1,3 @@
+# Files blocked by their suffix
+/name=\"(.*)\.(386|bat|bin|chm|cmd|com|do|exe|hta|jse|lnk|msi|ole)\"$/  REJECT Unwanted type of attachment $1.$2
+/name=\"(.*)\.(pif|reg|rm|scr|shb|shm|shs|sys|vbe|vbs|vxd|xl|xsl)\"$/   REJECT Unwanted type of attachment $1.$2

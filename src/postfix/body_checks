@@ -1,0 +1,3 @@
+# Telling postfix to skip attachments - Amavis will take care of scanning them.
+# Skip over base 64 encoded blocks.
+~^[[:alnum:]+/]{60,}\s*$~	OK

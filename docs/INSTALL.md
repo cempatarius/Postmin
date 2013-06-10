@@ -8,7 +8,10 @@ distributions of Linux will work but instructions may need to be modified.
 How to use instructions
 -----------------------
 
-For easier readability go [here](http://www.8bitnet.com/postmin/docs/install/)
+For other formats of this document go:
+
+* [HTML](http://www.8bitnet.com/postmin/docs/install/)
+* [Formated Markdown](https://bitbucket.org/cempatarius/postmin/src/)
 
 If a command starts with a `#` it means to run on the command line as root.
 If it starts with a `$` it means to run on the command line as normal user.
@@ -375,5 +378,50 @@ Testing `milter-manager` to verify that it is working.
 
     # sudo -u milter-manager milter-test-server -s unix:/var/run/milter-manager/milter-manager.sock
 
+
+postfix
+-------
+
+Postfix configuration files are located in `src/postfix/`.
+
+Inside `main.cf` are two variables that need changed, `mydomain` and
+`myhostname`. Change both to an appropriate value. Then copy the file
+to `/etc/postfix/`.
+
+The contents of `mime_header_checks` do not need to be altered. The
+file contains two regex statements that block known unwanted file
+types. Copy the file to `/etc/postfix/`.
+
+No header checks are currently needed. Create an empty file.
+
+    # echo > /etc/postfix/header_checks
+
+Next is `body_checks`, no modifications are needed. Just copy it to
+`/etc/postfix/`.
+
+The `bogus_mx` file just tells Postfix not to accecpt email from
+bogus IP ranges. No known reason to modify it, copy the file to
+`/etc/postfix/`.
+
+This next file needs heavily modified it is named `helo_checks`. This instructs
+Postfix to not accept mail from servers impersonating it. Edit the file so that
+it has the correct information. Then copy the file to `/etc/postfix/`.
+
+Finally the last batch of config files have been scripted. Just execute
+`src/create_sql_cf.sh chAnGEme`. This creates all the configuration files needed
+by Postfix to interface with SQL.
+
+Up next is to add the milter-manager group to Postfix.
+
+    # usermod -G milter-manager -a postfix
+
+Then cleanup unused files.
+
+    # rm /etc/postfix/{canonical,access,generic,reloacated,virtual,transport}
+
+Create the user and group for mailboxes.
+
+    # groupadd -g 7000 mailboxes
+    # useradd -g mailboxes -u 7000 -s /sbin/nologin -d /var/mail mailboxes
 
 
