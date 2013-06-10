@@ -332,6 +332,11 @@ Enable milter-greylist on startup and start the daemon.
 opendkim
 --------
 
+Default settings are set to `validate` dkim only. This section will be changed
+once the instructions are written.
+
+TODO
+
 
 milter-manager
 --------------
@@ -423,5 +428,163 @@ Create the user and group for mailboxes.
 
     # groupadd -g 7000 mailboxes
     # useradd -g mailboxes -u 7000 -s /sbin/nologin -d /var/mail mailboxes
+
+
+dovecot
+-------
+
+POP3 is disabled as IMAP has become the defacto standard due mainly to mail
+being checked from multiple devices.
+
+    # sed -i 's/#protocols = .*$/protocols = imap/' /etc/dovecot/dovecot.conf
+
+Enable `dict` for quota and expire.
+
+    # sed -i 's/^  #quota/  quota/' /etc/dovecot/dovecot.conf
+    # sed -i 's/^  #expire =.*/  expire = mysql/' /etc/dovecot/dovecot.conf
+
+Next need to actually creat the `dict` configuration file. All this file does
+is to tell dovecot how to lookup the information that is needed.
+
+    # cat <<EOF > /etc/dovecot/dovecot-dict-sql.conf.ext
+    connect = host=/var/lib/mysql/mysql.sock dbname=postmin user=dovecot password=chAnGEme
+
+    map {
+      pattern priv/quota/storage
+      table = quota
+      username_field = username
+      value_field = bytes
+    }
+
+    map {
+      pattern = priv/quota/messages
+      table = quota
+      username_field = username
+      value_field = messages
+    }
+
+    map {
+      pattern = shared/expire/\$user/\$mailbox
+      table = expires
+      value_field = expire_stamp
+
+      fields {
+        username = \$user
+        mailbox = \$mailbox
+      }
+    }
+    EOF
+
+Create the `dovecot-sql.conf.ext` configuration file.
+
+    # cat <<EOF > /etc/dovecot/dovecot-sql.conf.ext
+    driver = mysql
+    connect = host=/var/lib/mysql/mysql.sock dbname=postmin user=dovecot password=chAnGEme
+
+    default_pass_scheme = SHA512-CRYPT
+
+    iterate_query = SELECT username AS user FROM mailbox WHERE active = '1'
+    user_query = SELECT concat ('/var/mail/',maildir) AS home, '7000' AS uid, '7000' AS gid, concat ('*:bytes=', quota) AS quota_rule FROM mailbox WHERE username = '%u'
+    password_query = SELECT username AS user, password AS password FROM mailbox WHERE username = '%u' AND active = '1'
+    EOF
+
+Configure 10-auth.conf
+
+    # sed -i 's/#disable_plaintext_auth = yes/disable_plaintext_auth = yes/' /etc/dovecot/conf.d/10-auth.conf
+    # sed -i 's/#auth_worker_max_count = 30/auth_worker_max_count = 30/' /etc/dovecot/conf.d/10-auth.conf
+    # sed -i 's/#auth_failure_delay = 2 secs/auth_failure_delay = 5 secs/' /etc/dovecot/conf.d/10-auth.conf
+    # sed -i 's/auth_mechanisms = plain/auth_mechanisms = plain login/' /etc/dovecot/conf.d/10-auth.conf
+
+Configure 10-logging.conf
+
+    # sed -i 's/#log_path = syslog/log_path = syslog/' /etc/dovecot/conf.d/10-logging.conf
+    # sed -i 's/#syslog_facility = mail/syslog_facility = mail/' /etc/dovecot/conf.d/10-logging.conf
+
+Configure 10-mail.conf
+
+    # sed -i 's/#mail_location =/mail_location = maildir:\/var\/mail\/%d\/%n/' /etc/dovecot/conf.d/10-mail.conf
+    # sed -i 's/#mail_uid =/mail_uid = 7000/' /etc/dovecot/conf.d/10-mail.conf
+    # sed -i 's/#mail_gid =/mail_gid = 7000/' /etc/dovecot/conf.d/10-mail.conf
+    # sed -i 's/#mail_plugins =/mail_plugins = \$mail_plugins quota expire/' /etc/dovecot/conf.d/10-mail.conf
+    # sed -i 's/#maildir_copy_with_hardlinks = yes/maildir_copy_with_hardlinks = yes/' /etc/dovecot/conf.d/10-mail.conf
+
+Configure 10-master.conf. Edit the file and remove the `#` symbols infront of
+the following lines.
+
+    unix_listener /var/spool/postfix/private/auth {
+      mode = 0666
+    }
+
+While still in that file look for the `service dict` section and make it look
+like the following.
+
+    service dict {
+      # If dict proxy is used, mail processes should have access to its socket.
+      # For example: mode=0660, group=vmail and global mail_access_groups=vmail
+      unix_listener dict {
+        mode = 0666
+        #user =
+        #group =
+      }
+    }
+
+Configure 15-lda.conf. NOTE: Replace yourDomain with the servers default domain.
+
+    # sed -i 's/#postmaster_address =/postmaster_address = postmaster@yourDomain/' /etc/dovecot/conf.d/15-lda.conf
+    # sed -i 's/#quota_full_tempfail = no/quota_full_tempfail = yes/' /etc/dovecot/conf.d/15-lda.conf
+    # sed -i 's/  #mail_plugins = \$mail_plugins/  mail_plugins = \$mail_plugins/' /etc/dovecot/conf.d/15-lda.conf
+
+Configure 20-imap.conf
+
+    # sed -i 's/#mail_max_userip_connections = 10/mail_max_userip_connections = 5/' /etc/dovecot/conf.d/20-imap.conf
+    # sed -i 's/#mail_plugins = \$mail_plugins/mail_plugins = \$mail_plugins imap_quota/' /etc/dovecot/conf.d/20-imap.conf
+
+Configure 90-plugin.conf
+
+    # sed -i 's/#setting_name.*/expire = Trash\n  expire2 = Trash\/\*\n  expire3 = Spam/' /etc/dovecot/conf.d/90-plugin.conf
+
+Configure 90-quota.conf
+
+    # sed -i 's/  #quota_rule2 = Trash:storage=+100M/  quota_rule2 = Trash:ignore/' /etc/dovecot/conf.d/90-quota.conf
+    # sed -i 's/#quota_warning/quota_warning/' /etc/dovecot/conf.d/90-quota.conf
+    # sed -i 's/#quota_warning2/quota_warning2/' /etc/dovecot/conf.d/90-quota.conf
+    # sed -i 's/  #quota = dict:User quota::proxy::quota/  quota = dict:user::proxy::quotadict/' /etc/dovecot/conf.d/90-quota.conf
+
+Add the following line right below `quota_rule2`.
+
+    quota_exceeded_message = 552 5.0.0 Mailbox is full - please try later
+
+Change the service quota-warning to whats below.
+
+    service quota-warning {
+      executable = script /usr/local/bin/quota-warning.sh
+      user = dovecot
+      unix_listener quota-warning {
+        user = root
+      }
+    }
+
+Copy file `src/quota-warning.sh` to `/usr/local/bin/quota-warning.sh`. Then
+change group of the file as well as change permissions.
+
+    # chgrp dovecot /usr/local/bin/quota-warning.sh
+    # chmod 0750 /usr/local/bin/quota-warning.sh
+
+Enable dovecot on startup and start daemon.
+
+    # /sbin/chkconfig dovecot on
+    # /sbin/service dovecot start
+
+postmin
+-------
+
+To Be Continued...
+
+Final Checks
+------------
+
+Make sure all daemons that are required are enabled and running.
+
+    # chkconfig | grep 'clamav-milter\|clamd\|dovecot\|milter-greylist\|milter-manager\|nginx\|opendkim\|php-fpm\|postfix\|spamassassin-milter\|spamassassin'
 
 
