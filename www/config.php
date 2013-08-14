@@ -9,3 +9,16 @@
  * @link      http://www.8bitnet.com/
  */
 
+/**
+ * Modules that are enabled, Key is the name of module, value is name of module
+ * folder.
+ */
+$this->config['modules'] = array('Domains'        => 'domains',
+                                 'Mailboxes'      => 'mailboxes',
+                                 'Aliases'        => 'aliases',
+                                 'Blocklists'     => 'blocklists',
+                                 'Transports'     => 'transports',
+                                 'Smarthosts'     => 'smarthosts',
+                                 'Spam User Pref' => 'userpref');
+
+

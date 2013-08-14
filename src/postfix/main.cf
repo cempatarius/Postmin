@@ -98,6 +98,20 @@ smtpd_client_connection_rate_limit = 20
 # message delivery request.
 smtpd_recipient_limit = 250
 
+## in_flow_delay ##
+#
+# Time to pause before accepting a new message, when the message arrival rate
+# exceeds the message delivery rate. This feature is turned on by default (it's
+# disabled on SCO UNIX due to an SCO bug).
+in_flow_delay = 5s
+
+## strict_rfc821_envelopes ##
+#
+# Require that addresses received in SMTP MAIL FROM and RCPT TO commands are
+# enclosed with <>, and that those addresses do not contain RFC 822 style
+# comments or phrases. This stops mail from poorly written software.
+strict_rfc821_envelopes = yes
+
 ###############################################################################
 ## SMTP AUTH                                                                 ##
 ##    SMTP auth is handled by dovecot.                                       ##
@@ -216,8 +230,8 @@ virtual_mailbox_domains = proxy:mysql:/etc/postfix/sql/domain_maps.cf
 # "@domain.tld" to match any user in the specified domain that does not have a
 # specific "user@domain.tld" entry.
 virtual_mailbox_maps =
-        proxy:mysql:/etc/postfix/sql/mailbox_maps.cf,
-        proxy:mysql:/etc/postfix/sql/alias_domain_mailbox_maps.cf
+	proxy:mysql:/etc/postfix/sql/mailbox_maps.cf,
+	proxy:mysql:/etc/postfix/sql/alias_domain_mailbox_maps.cf
 
 ## virtual_alias_maps ##
 #
@@ -227,9 +241,9 @@ virtual_mailbox_maps =
 # ADDRESS_REWRITING_README document. This feature is available in Postfix 2.0
 # and later. The default value is backwards compatible with Postfix version 1.1.
 virtual_alias_maps =
-        proxy:mysql:/etc/postfix/sql/alias_maps.cf,
-        proxy:mysql:/etc/postfix/sql/alias_domain_maps.cf,
-        proxy:mysql:/etc/postfix/sql/alias_domain_catchall_maps.cf
+	proxy:mysql:/etc/postfix/sql/alias_maps.cf,
+	proxy:mysql:/etc/postfix/sql/alias_domain_maps.cf,
+	proxy:mysql:/etc/postfix/sql/alias_domain_catchall_maps.cf
 
 ###############################################################################
 ## Restrictions                                                              ##
@@ -259,6 +273,17 @@ header_checks = pcre:/etc/postfix/header_checks
 # body_checks(5) manual page.
 body_checks = regexp:/etc/postfix/body_checks
 
+## smtpd_sender_restrictions ##
+#
+# Optional restrictions that the Postfix SMTP server applies in the context of
+# a client MAIL FROM command. See SMTPD_ACCESS_README, section "Delayed
+# evaluation of SMTP access restriction lists" for a discussion of evaluation
+# context and time.
+# READ MORE: http://www.postfix.org/postconf.5.html#smtpd_sender_restrictions
+smtpd_sender_restrictions =
+        reject_non_fqdn_sender
+        reject_unknown_sender_domain
+
 ## smtpd_recipient_restrictions ##
 #
 # The access restrictions that the Postfix SMTP server applies in the context of
@@ -268,8 +293,6 @@ body_checks = regexp:/etc/postfix/body_checks
 # READ MORE: http://www.postfix.org/postconf.5.html#smtpd_recipient_restrictions
 smtpd_recipient_restrictions =
         reject_non_fqdn_recipient
-        reject_non_fqdn_sender
-        reject_unknown_sender_domain
         reject_unknown_recipient_domain
         permit_sasl_authenticated
         permit_mynetworks
@@ -291,24 +314,35 @@ smtpd_recipient_restrictions =
 # context and time.
 smtpd_data_restrictions =
         reject_multi_recipient_bounce
+        reject_unauth_pipelining
+
+## smtpd_client_restrictions ##
+#
+# Optional restrictions that the Postfix SMTP server applies in the context of
+# a client connection request. See SMTPD_ACCESS_README, section "Delayed
+# evaluation of SMTP access restriction lists" for a discussion of evaluation
+# context and time.
+smtpd_client_restrictions =
+        permit_mynetworks
 
 ## proxy_read_maps ##
 #
 # The lookup tables that the proxymap(8) server is allowed to access for the
 # read-only service. Table references that don't begin with proxy: are ignored.
 proxy_read_maps =
-        $local_recipient_maps
-        $mydestination
-        $mynetworks
-        $transport_maps
-        $relay_domains
-        $relay_recipient_maps
-        $virtual_mailbox_domains
-        $virtual_mailbox_maps
-        $virtual_alias_maps
-        proxy:mysql:/etc/postfix/sql/access_sender.cf
-        proxy:mysql:/etc/postfix/sql/access_client.cf
-        proxy:mysql:/etc/postfix/sql/access_recipient.cf
+	$local_recipient_maps
+	$mydestination
+	$mynetworks
+	$transport_maps
+	$relay_domains
+	$relay_recipient_maps
+	$virtual_mailbox_domains
+	$virtual_mailbox_maps
+	$virtual_alias_maps
+	proxy:mysql:/etc/postfix/sql/access_sender.cf
+	proxy:mysql:/etc/postfix/sql/access_client.cf
+	proxy:mysql:/etc/postfix/sql/access_recipient.cf
+	proxy:mysql:/etc/postfix/sql/mynetworks.cf
 
 ###############################################################################
 ## Milter Settings                                                           ##
