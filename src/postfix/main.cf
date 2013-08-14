@@ -230,8 +230,8 @@ virtual_mailbox_domains = proxy:mysql:/etc/postfix/sql/domain_maps.cf
 # "@domain.tld" to match any user in the specified domain that does not have a
 # specific "user@domain.tld" entry.
 virtual_mailbox_maps =
-	proxy:mysql:/etc/postfix/sql/mailbox_maps.cf,
-	proxy:mysql:/etc/postfix/sql/alias_domain_mailbox_maps.cf
+        proxy:mysql:/etc/postfix/sql/mailbox_maps.cf,
+        proxy:mysql:/etc/postfix/sql/alias_domain_mailbox_maps.cf
 
 ## virtual_alias_maps ##
 #
@@ -241,9 +241,9 @@ virtual_mailbox_maps =
 # ADDRESS_REWRITING_README document. This feature is available in Postfix 2.0
 # and later. The default value is backwards compatible with Postfix version 1.1.
 virtual_alias_maps =
-	proxy:mysql:/etc/postfix/sql/alias_maps.cf,
-	proxy:mysql:/etc/postfix/sql/alias_domain_maps.cf,
-	proxy:mysql:/etc/postfix/sql/alias_domain_catchall_maps.cf
+        proxy:mysql:/etc/postfix/sql/alias_maps.cf,
+        proxy:mysql:/etc/postfix/sql/alias_domain_maps.cf,
+        proxy:mysql:/etc/postfix/sql/alias_domain_catchall_maps.cf
 
 ###############################################################################
 ## Restrictions                                                              ##
@@ -332,19 +332,19 @@ smtpd_client_restrictions =
 # The lookup tables that the proxymap(8) server is allowed to access for the
 # read-only service. Table references that don't begin with proxy: are ignored.
 proxy_read_maps =
-	$local_recipient_maps
-	$mydestination
-	$mynetworks
-	$transport_maps
-	$relay_domains
-	$relay_recipient_maps
-	$virtual_mailbox_domains
-	$virtual_mailbox_maps
-	$virtual_alias_maps
-	proxy:mysql:/etc/postfix/sql/access_sender.cf
-	proxy:mysql:/etc/postfix/sql/access_client.cf
-	proxy:mysql:/etc/postfix/sql/access_recipient.cf
-	proxy:mysql:/etc/postfix/sql/mynetworks.cf
+        $local_recipient_maps
+        $mydestination
+        $mynetworks
+        $transport_maps
+        $relay_domains
+        $relay_recipient_maps
+        $virtual_mailbox_domains
+        $virtual_mailbox_maps
+        $virtual_alias_maps
+        proxy:mysql:/etc/postfix/sql/access_sender.cf
+        proxy:mysql:/etc/postfix/sql/access_client.cf
+        proxy:mysql:/etc/postfix/sql/access_recipient.cf
+        proxy:mysql:/etc/postfix/sql/mynetworks.cf
 
 ###############################################################################
 ## Milter Settings                                                           ##
