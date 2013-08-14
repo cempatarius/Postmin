@@ -324,6 +324,8 @@ smtpd_data_restrictions =
 # context and time.
 smtpd_client_restrictions =
         permit_mynetworks
+        reject_rbl_client zen.spamhaus.org
+        reject_rbl_client cbl.abuseat.org
 
 ## proxy_read_maps ##
 #
