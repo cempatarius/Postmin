@@ -21,13 +21,12 @@ class Config {
     function __construct() {
     }
 
-
     /**
      * Load the configuration file specified.
      *
      * @return void
      */
-    function getConfigFile($arg = '../config.php') {
+    function getConfigFile($arg = './config.php') {
         require_once($arg);
     }
 
@@ -38,7 +37,7 @@ class Config {
      */
     function getConfig($arg = false) {
         if($arg) {
-            if(array_key_exists($arg)) {
+            if(array_key_exists($arg,$this->config)) {
                 return $this->config[$arg];
             } else {
                 return 'Invalid Configuration Option.';
@@ -47,8 +46,5 @@ class Config {
             return 'Invalid Configuration Option.';
         }
     }
-
-
-
 
 }

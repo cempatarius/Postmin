@@ -10,6 +10,11 @@
  */
 
 /**
+ * Choose a theme.
+ */
+$this->config['theme'] = 'default';
+
+/**
  * Modules that are enabled, Key is the name of module, value is name of module
  * folder.
  */

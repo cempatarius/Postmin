@@ -4,6 +4,6 @@
         </footer>
 
         <script src="http://code.jquery.com/jquery.js"></script>
-        <script src="js/bootstrap.min.js"></script>
+        <script src="theme/default/assets/js/bootstrap.min.js"></script>
     </body>
 </html>

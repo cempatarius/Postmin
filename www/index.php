@@ -12,7 +12,7 @@
 /**
  * Include all required pages.
  */
-foreach glob('inc/*.php') as $filename) {
+foreach(glob('inc/*.php') as $filename) {
     require_once($filename);
 }
 
@@ -23,5 +23,10 @@ foreach glob('inc/*.php') as $filename) {
 $config = new Config;
 $config->getConfigFile();
 
+
+require_once('theme/'.$config->getConfig('theme').'/header.php');
+require_once('theme/'.$config->getConfig('theme').'/nav.php');
+require_once('theme/'.$config->getConfig('theme').'/index.php');
+require_once('theme/'.$config->getConfig('theme').'/footer.php');
 
 
