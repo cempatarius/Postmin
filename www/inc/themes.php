@@ -14,6 +14,9 @@ function buildNav($modules) {
 
 }
 
+function theme_page_title() {
+
+}
 
 
 
