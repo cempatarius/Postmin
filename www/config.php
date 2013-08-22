@@ -18,12 +18,13 @@ $this->config['theme'] = 'default';
  * Modules that are enabled, Key is the name of module, value is name of module
  * folder.
  */
-$this->config['modules'] = array('Domains'        => 'domains',
+$this->config['modules'] = array('Home'           => 'home',
+                                 'Domains'        => 'domains',
                                  'Mailboxes'      => 'mailboxes',
                                  'Aliases'        => 'aliases',
                                  'Blocklists'     => 'blocklists',
                                  'Transports'     => 'transports',
                                  'Smarthosts'     => 'smarthosts',
-                                 'Spam User Pref' => 'userpref');
+                                 'Spam Settings' => 'spamsettings');
 
 

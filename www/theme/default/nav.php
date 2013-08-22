@@ -12,10 +12,10 @@
                 </div> <!-- navbar-header -->
                 <div class="collapse navbar-collapse">
                     <ul class="nav navbar-nav">
-                        <li class="active"><a href="#">Home</a></li>
+<?php buildNav($config->getConfig('modules')); ?>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="#">Logout</a></li>
+                        <li><a href="?p=logout">Logout</a></li>
                     </ul>
                 </div> <!-- nav-collapse -->
             </div> <!-- container -->

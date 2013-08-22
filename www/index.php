@@ -24,9 +24,13 @@ $config = new Config;
 $config->getConfigFile();
 
 
-require_once('theme/'.$config->getConfig('theme').'/header.php');
-require_once('theme/'.$config->getConfig('theme').'/nav.php');
-require_once('theme/'.$config->getConfig('theme').'/index.php');
-require_once('theme/'.$config->getConfig('theme').'/footer.php');
+if(authCurrent()) {
+    require_once('theme/'.$config->getConfig('theme').'/header.php');
+    require_once('theme/'.$config->getConfig('theme').'/nav.php');
+    require_once('theme/'.$config->getConfig('theme').'/index.php');
+    require_once('theme/'.$config->getConfig('theme').'/footer.php');
+} else {
+    require_once('theme/'.$config->getConfig('theme').'/signin.php');
+}
 
 
