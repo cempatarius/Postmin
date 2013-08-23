@@ -20,7 +20,7 @@
                 </div>
             </div>
 <?php } ?>
-            <form class="form-signin">
+            <form class="form-signin" action="index.php?p=auth&amp;action=login" method="post">
                 <input type="text" class="form-control" placeholder="Email address" autofocus>
                 <input type="password" class="form-control" placeholder="Password">
                 <label class="checkbox">

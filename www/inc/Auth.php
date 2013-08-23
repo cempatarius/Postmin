@@ -34,6 +34,8 @@ class auth {
 
     /**
      * Inject MySQL connection into class
+     *
+     * @return void
      */
     public function authInjectMySql($mysqlConnection) {
         $this->mysql = $mysqlConnection;
@@ -45,25 +47,66 @@ class auth {
      * @return boolean
      */
     public function authCurrent() {
-        return false;
+        if(isset($_COOKIE['postminauth']) &! empty($_COOKIE['postminauth'])) {
+            if($this->authByCookie()) {
+                if($this->userInfo['ip'] == $this->authReturnIp()) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     /**
      * Process logout request
      */
     public function authLogout() {
-
+        $sqlQuery = 'UPDATE mailboxes SET cookiestring = NULL, ip = NULL WHERE cookiestring = '
+            . $mysql->real_escape_string($_COOKIE['postminauth']);
+        if(!$result = $this->mysql->query($sqlQuery)) {
+            $this->error = 'Unable to clear login information!';
+            $result->free();
+            return false;
+        }
+        $this->authCookie();
+        $result->free();
+        return true;
     }
 
     /**
      * Process login request
      */
-    public function authLogin($formPassword) {
-
+    public function authLogin($formUsername,$formPassword) {
+        if($this->authByUsername($formUsername)) {
+            if($this->authPassword($formPassword, $this->userInfo['password'])) {
+                $cookieSrting = $this->authRandom();
+                $userIp = $this->authReturnIp();
+                $sqlQuery = 'UPDATE mailboxes SET cookiestring = "'
+                          . $cookieString . '", ip = "' . $userIp . '"';
+                if(!$result = $this->mysql->query($sqlQuery)) {
+                    $this->error = 'Unable to process login!';
+                    return false;
+                }
+                $this->authCookie($cookieString, false);
+                $result->free();
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     /**
      * Fetch current error status
+     *
+     * @return mixed
      */
     public function authError() {
         if(isset($this->error)) {

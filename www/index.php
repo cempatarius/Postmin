@@ -44,7 +44,6 @@ $auth = new auth;
  */
 $auth->authInjectMySql($mysql);
 
-
 /**
  * Check if the user is currently authenticated.
  */
