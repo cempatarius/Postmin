@@ -13,6 +13,13 @@
             <div class="page-header">
                 <h1 class="text-center">Postmin</h1>
             </div>
+<?php if($auth->authError()) { ?>
+            <div class="col-md-6 col-md-offset-3 text-center">
+                <div class="alert alert-danger">
+                    <p><strong>Failed!</strong> <?php echo $auth->authError(); ?></p>
+                </div>
+            </div>
+<?php } ?>
             <form class="form-signin">
                 <input type="text" class="form-control" placeholder="Email address" autofocus>
                 <input type="password" class="form-control" placeholder="Password">

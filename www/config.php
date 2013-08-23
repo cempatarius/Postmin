@@ -27,4 +27,28 @@ $this->config['modules'] = array('Home'           => 'home',
                                  'Smarthosts'     => 'smarthosts',
                                  'Spam Settings' => 'spamsettings');
 
+/**
+ * Website domain name ie mail.example.com
+ */
+$this->config['domain'] = 'mail.example.com';
 
+
+/**
+ * MySQL Hostname
+ */
+$this->config['mysqlhostname'] = '127.0.0.1';
+
+/**
+ * MySQL Username
+ */
+$this->config['mysqlusername'] = 'postmin';
+
+/**
+ * MySQL Password
+ */
+$this->config['mysqlpassword'] = 'chAnGEme';
+
+/**
+ * MySQL Database
+ */
+$this->config['mysqldatabase'] = 'postmin';
