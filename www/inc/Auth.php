@@ -48,8 +48,8 @@ class auth {
      */
     public function authCurrent() {
         if(isset($_COOKIE['postminauth']) &! empty($_COOKIE['postminauth'])) {
-            if($this->authByCookie()) {
-                if($this->userInfo['ip'] == $this->authReturnIp()) {
+            if($this->authByCookie($_COOKIE['postminauth'])) {
+                if($this->userInfo[0]['ip'] == $this->authReturnIp()) {
                     return true;
                 } else {
                     return false;
@@ -58,6 +58,13 @@ class auth {
                 return false;
             }
         } else {
+            if(isset($_POST['login'])) {
+                if($this->authLogin($_POST['loginUsername'],$_POST['loginPassword'])) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
             return false;
         }
     }
@@ -66,15 +73,7 @@ class auth {
      * Process logout request
      */
     public function authLogout() {
-        $sqlQuery = 'UPDATE mailboxes SET cookiestring = NULL, ip = NULL WHERE cookiestring = '
-            . $mysql->real_escape_string($_COOKIE['postminauth']);
-        if(!$result = $this->mysql->query($sqlQuery)) {
-            $this->error = 'Unable to clear login information!';
-            $result->free();
-            return false;
-        }
         $this->authCookie();
-        $result->free();
         return true;
     }
 
@@ -83,8 +82,8 @@ class auth {
      */
     public function authLogin($formUsername,$formPassword) {
         if($this->authByUsername($formUsername)) {
-            if($this->authPassword($formPassword, $this->userInfo['password'])) {
-                $cookieSrting = $this->authRandom();
+            if($this->authPassword($formPassword, $this->userInfo[0]['password'])) {
+                $cookieString = $this->authGenRandom();
                 $userIp = $this->authReturnIp();
                 $sqlQuery = 'UPDATE mailboxes SET cookiestring = "'
                           . $cookieString . '", ip = "' . $userIp . '"';
@@ -93,7 +92,6 @@ class auth {
                     return false;
                 }
                 $this->authCookie($cookieString, false);
-                $result->free();
                 return true;
             } else {
                 return false;
@@ -218,6 +216,10 @@ class auth {
             setcookie('postminauth', $cookieString, time() + 3600);
         }
         return true;
+    }
+
+    public function userLoginInfo($var) {
+        echo $this->userInfo[0][$var];
     }
 
 }
