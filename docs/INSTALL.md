@@ -36,13 +36,12 @@ somewhere safe for the duration of following these instructions. These
 passwords will need to be recalled often throughout the process. Since these
 passwords do not need to be entered after the initial setup they should be
 complex and lengthy passwords. Create passwords for the following usernames
-and keep them associated to each other.
+and keep them associated with their respective username.
 
 * postmin
 * spamd
 * postfix_ro
 * dovecot
-* opendkim
 
 
 Adding Additional Repos
@@ -73,7 +72,7 @@ Install the following packages, these should pull in all other dependencies.
 
     # yum install postfix spamass-milter clamav-milter milter-greylist milter-manager opendkim \
     > mysql mysql-server pyzor dovecot-mysql nginx php-fpm php-cli php-gd php-mysql php-pdo \
-    > php rrdtool-ruby
+    > php rrdtool-ruby rrdtool-php
 
 
 SELinux
