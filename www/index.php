@@ -45,15 +45,22 @@ $auth = new auth;
 $auth->authInjectMySql($mysql);
 
 /**
+ * Instatiate Dispatcher Class
+ */
+$dispatcher = new Dispatcher;
+
+/**
+ * Inject the already esablished mysql connection into the dispatcher class.
+ */
+$dispatcher->injectClass($mysql,$config);
+
+/**
  * Check if the user is currently authenticated.
  */
 if($auth->authCurrent()) {
-    require_once('theme/'.$config->getConfig('theme').'/header.php');
-    require_once('theme/'.$config->getConfig('theme').'/nav.php');
-    require_once('theme/'.$config->getConfig('theme').'/index.php');
-    require_once('theme/'.$config->getConfig('theme').'/footer.php');
+    $dispatcher->render();
 } else {
-    require_once('theme/'.$config->getConfig('theme').'/signin.php');
+    require_once('theme/' . $config->getConfig('theme') . '/signin.php');
 }
 
 /**
