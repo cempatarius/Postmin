@@ -21,11 +21,12 @@ $this->config['theme'] = 'default';
 $this->config['modules'] = array('Home'           => 'home',
                                  'Domains'        => 'domains',
                                  'Mailboxes'      => 'mailboxes',
-                                 'Aliases'        => 'aliases',
+                                 'Aliases'        => array ('Address Aliases' => 'addraliases',
+                                                            'Domain Aliases'  => 'domaliases'),
                                  'Blocklists'     => 'blocklists',
                                  'Transports'     => 'transports',
                                  'Smarthosts'     => 'smarthosts',
-                                 'Spam Settings' => 'spamsettings');
+                                 'Spam Settings'  => 'spamsettings');
 
 /**
  * Website domain name ie mail.example.com
