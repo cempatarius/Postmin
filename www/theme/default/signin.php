@@ -20,12 +20,9 @@
                 </div>
             </div>
 <?php } ?>
-            <form class="form-signin" action="index.php?p=auth&amp;action=login" method="post">
+            <form class="form-signin" action="index.php" method="post">
                 <input type="text" class="form-control" name="loginUsername" placeholder="Email address" autofocus>
                 <input type="password" class="form-control" name="loginPassword" placeholder="Password">
-                <label class="checkbox">
-                    <input type="checkbox" value="remember-me"> Remember me
-                </label>
                 <button class="btn btn-lg btn-primary btn-block" name="login" type="submit">Sign in</button>
             </form>
         </div> <!-- /container -->

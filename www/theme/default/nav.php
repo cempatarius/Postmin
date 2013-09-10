@@ -12,7 +12,7 @@
                 </div> <!-- navbar-header -->
                 <div class="collapse navbar-collapse">
                     <ul class="nav navbar-nav">
-<?php buildNav($config->getConfig('modules')); ?>
+<?php $this->buildNav($this->config->getConfig('modules')); ?>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         <li><a href="?p=auth&amp;action=logout">Logout</a></li>
