@@ -15,7 +15,7 @@
 <?php $this->buildNav($this->config->getConfig('modules')); ?>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="?p=auth&amp;action=logout">Logout</a></li>
+                        <li><a href="?module=auth&amp;action=logout">Logout</a></li>
                     </ul>
                 </div> <!-- nav-collapse -->
             </div> <!-- container -->

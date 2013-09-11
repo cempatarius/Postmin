@@ -2,12 +2,14 @@
 
 
     <div class="container">
-        <div class="page-header">
-            <h1><?php echo $this->pageContent['pageTitle']; ?></h1>
-        </div>
-
+        <div class="panel panel-info">
+            <div class="panel-heading"><?php echo $this->pageContent['pageTitle']; ?></div>
+            <div class="panel-body">
+                <p><?php echo $this->pageContent['pageDescription']; ?></p>
+            </div>
 <?php foreach($this->pageContent['sections'] as $key => $value) {
     echo $this->pageContent['sections'][$key]['content'];
 } ?>
+        </div>
     </div>
 

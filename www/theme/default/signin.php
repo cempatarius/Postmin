@@ -20,7 +20,7 @@
                 </div>
             </div>
 <?php } ?>
-            <form class="form-signin" action="index.php" method="post">
+            <form class="form-signin" method="post">
                 <input type="text" class="form-control" name="loginUsername" placeholder="Email address" autofocus>
                 <input type="password" class="form-control" name="loginPassword" placeholder="Password">
                 <button class="btn btn-lg btn-primary btn-block" name="login" type="submit">Sign in</button>
