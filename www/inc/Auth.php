@@ -211,9 +211,9 @@ class auth {
      */
     private function authCookie($cookieString = null, $destroy = true) {
         if($destroy) {
-            setcookie('postminauth', '', time() - 3600);
+            setcookie('postminauth', '', time() - 14400);
         } else {
-            setcookie('postminauth', $cookieString, time() + 3600);
+            setcookie('postminauth', $cookieString, time() + 14400);
         }
         return true;
     }
