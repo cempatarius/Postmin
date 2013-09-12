@@ -4,7 +4,6 @@
 class Pagination {
 
     public $itemsPerPage = '50';
-    public $curPage;
     public $nxtPage;
     public $pvsPage;
     public $totalItems;
@@ -21,12 +20,12 @@ class Pagination {
      *
      * @return string
      */
-    private function limitResults() {
-        $maxRecord = $this->curPage * $this->itemsPerPage;
-        if($maxRecord > $this->totalItems) {
-            $maxRecord = $this->totalItems;
+    public function limitResults() {
+        $maxRecord = $this->itemsPerPage;
+        $minRecord = ($this->currentPage() - 1) * $this->itemsPerPage;
+        if($minRecord < 0) {
+            $minRecord = 0;
         }
-        $minRecord = $maxRecord - $this->itemsPerPage;
         $limit = $minRecord . ', ' . $maxRecord;
         return $limit;
     }
@@ -36,11 +35,37 @@ class Pagination {
      *
      * @return num
      */
-    private function totalPages() {
+    public function totalPages() {
         $totalPages = ceil($this->totalItems / $this->itemsPerPage);
         return $totalPages;
     }
 
+    /**
+     * Return current page.
+     *
+     * @return num
+     */
+    public function currentPage() {
+        if(isset($_GET['page'])) {
+            return $_GET['page'];
+        } else {
+            return '1';
+        }
+    }
+
+    /**
+     * Previous Page
+     */
+    public function pvsPage() {
+        return $this->currentPage() - 1;
+    }
+
+    /**
+     * Next Page
+     */
+    public function nxtPage() {
+        return $this->currentPage() + 1;
+    }
 
 
 
