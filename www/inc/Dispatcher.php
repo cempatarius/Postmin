@@ -49,9 +49,9 @@ class Dispatcher {
      *
      * @return var
      */
-    public function curPage() {
-        if(isset($_GET['p'])) {
-            return $_GET['p'];
+    public function curModule() {
+        if(isset($_GET['module'])) {
+            return $_GET['module'];
         } else {
             return 'home';
         }
@@ -79,7 +79,7 @@ class Dispatcher {
      */
     public function buildNav($links, $tags = 'li', $active = 'active') {
         foreach($links as $linkKey => $linkValue) {
-            if($this->curPage() == $linkValue) {
+            if($this->curModule() == $linkValue) {
                 $current = ' class="' . $active . '"';
             } else {
                 $current = '';
@@ -90,7 +90,7 @@ class Dispatcher {
                      . $linkKey . ' <b class="caret"></b></a>' . "\n";
                 echo '<ul class="dropdown-menu">' . "\n";
                 foreach($linkValue as $linkLinkKey => $linkLinkValue) {
-                    echo '<' . $tags . '><a href="?p=' . $linkLinkValue . '">'
+                    echo '<' . $tags . '><a href="?module=' . $linkLinkValue . '">'
                          . $linkLinkKey . '</a></' . $tags . '>' . "\n";
                 }
                 echo '</ul>' . "\n";
@@ -111,7 +111,7 @@ class Dispatcher {
      * @return mixed
      */
     public function render() {
-        if(!$this->loadModule($this->curPage())) {
+        if(!$this->loadModule($this->curModule())) {
             $this->error = 'Error! Invalid Module or ';
         }
         require_once('theme/' . $this->config->getConfig('theme') . '/header.php');
