@@ -1,6 +1,5 @@
 <?php
 
-    require_once('general.php');
 class Module {
 
 
@@ -62,6 +61,12 @@ class Module {
                     $this->pageContent['type'] = 'form';
                     $this->editAlias();
                     break;
+                case 'toggle':
+                    $this->pageContent['pageTitle'] = 'Enable/Disable Address Alias';
+                    $this->pageContent['pageDescription'] = 'Enable or disable an address alias.';
+                    $this->pageContent['type'] = 'form';
+                    $this->toggleAlias();
+                    break;
             }
         } else {
             if($this->countAliases()) {
@@ -78,6 +83,29 @@ class Module {
                 return false;
             }
         }
+    }
+
+    /**
+     * Add alias.
+     */
+    private function addAlias() {
+
+
+
+    }
+
+    /**
+     * Delete alias.
+     */
+    private function deleteAlias() {
+        $sqlDelete = 'DELETE FROM aliases WHERE aliasesid = ';
+        if(!$result = $this->mysql->query($sqlDelete)) {
+            $this->error = 'Unable to delete alias';
+            $result->free();
+            return false;
+        }
+        $result->free();
+        return true;
     }
 
     /**

@@ -70,40 +70,6 @@ class Dispatcher {
         }
     }
 
-    /**
-     * Function to build navigation, $links is an array that expects 'pagetitle' ->
-     * 'pagename'. Page title is what is displayed in the UI and pagename is what
-     * the site uses to know what page to display. $tags is what html tag should
-     * surround the <a> tag. $active is what css class should be used for the current
-     * page.
-     */
-    public function buildNav($links, $tags = 'li', $active = 'active') {
-        foreach($links as $linkKey => $linkValue) {
-            if($this->curModule() == $linkValue) {
-                $current = ' class="' . $active . '"';
-            } else {
-                $current = '';
-            }
-            if(is_array($linkValue)) {
-                echo '<li class="dropdown">' . "\n";
-                echo '<a href="#" class="dropdown-toggle" data-toggle="dropdown">'
-                     . $linkKey . ' <b class="caret"></b></a>' . "\n";
-                echo '<ul class="dropdown-menu">' . "\n";
-                foreach($linkValue as $linkLinkKey => $linkLinkValue) {
-                    echo '<' . $tags . '><a href="?module=' . $linkLinkValue . '">'
-                         . $linkLinkKey . '</a></' . $tags . '>' . "\n";
-                }
-                echo '</ul>' . "\n";
-            } else {
-                echo '<' . $tags . $current . '><a href="?p=' . $linkValue . '">'
-                    . $linkKey . '</a></' . $tags . '>' . "\n";
-            }
-        }
-    }
-
-    public function pageTitle() {
-
-    }
 
     /**
      * Function to display the finished page
